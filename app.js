@@ -8,16 +8,23 @@ const addRequestId = require("express-request-id")();
 const morganBody = require("morgan-body");
 const bodyParser = require("body-parser");
 
-var app = express();
+let app = express();
 app.use(bodyParser.json());
 app.use(cors());
 app.use(addRequestId);
-morganBody(app);
 
-var logDirectory = path.join(__dirname, "./log");
+const log = fs.createWriteStream(
+  path.join(__dirname, "log", "express.log"), { flags: "a" }
+);
+morganBody(app, {
+  noColors: true,
+  stream: log,
+});
+
+let logDirectory = path.join(__dirname, "./log");
 fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
 
-var accessLogStream = rfs.createStream("access.log", {
+let accessLogStream = rfs.createStream("access.log", {
   size: "100MB",
   interval: "1d",
   path: logDirectory,
