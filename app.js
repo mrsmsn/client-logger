@@ -23,18 +23,19 @@ var accessLogStream = rfs.createStream("access.log", {
   path: logDirectory,
 });
 
+logger.token('id', function getId (req) { return req.id })
 logger.token("custom_token", (req, res) => JSON.stringify(req.body));
 logger.token(
   "custom_date",
   () => new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString()
 );
 
-var preFormat = ":custom_date :custom_token";
+var preFormat = ":id :custom_date :custom_token";
 app.use(logger(preFormat, { stream: accessLogStream }));
 
 app.post("/", function (req, res) {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("Hello, world!");
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.end("{\"message\": \"Hello, world!\"}");
 });
 
 var server = app.listen(process.env.PORT || 3000, function () {
